@@ -7,12 +7,16 @@ import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
 import Card from "@/components/ui/Card";
 import { useStudentProfile, useUpdateStudentProfile } from "@/hooks/useStudentProfile";
+import api from "@/lib/api";
+import { University } from "@/types";
+import { getUniversityDomain } from "@/lib/auth";
 
 export default function StudentProfilePage() {
   const { data: profile, isLoading } = useStudentProfile();
   const updateMutation = useUpdateStudentProfile();
   const [universityName, setUniversityName] = useState("");
   const [success, setSuccess] = useState("");
+  const [contactError, setContactError] = useState("");
 
   const [form, setForm] = useState({
     department: "",
@@ -24,9 +28,25 @@ export default function StudentProfilePage() {
     contactValue: "",
   });
 
+  // Üniversite adını emailden çek
+  useEffect(() => {
+    const domain = getUniversityDomain();
+    if (!domain) return;
+
+    api
+      .get<University>("/api/universities/by-domain", {
+        params: { domain },
+      })
+      .then((res) => setUniversityName(res.data.name))
+      .catch(() => {
+        // Domain kayıtlı değilse sessizce geç
+      });
+  }, []);
+
+  // Profil varsa formu doldur
   useEffect(() => {
     if (profile) {
-      setUniversityName(profile.universityName || "");
+      if (profile.universityName) setUniversityName(profile.universityName);
       setForm({
         department: profile.department || "",
         grade: profile.grade?.toString() || "",
@@ -42,12 +62,27 @@ export default function StudentProfilePage() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    // İletişim bilgisi değişince validate et
+    if (name === "contactValue") {
+      setContactError(validateContactValue(form.contactPreference, value));
+    }
+    if (name === "contactPreference") {
+      setContactError(validateContactValue(value, form.contactValue));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccess("");
+
+    const error = validateContactValue(form.contactPreference, form.contactValue);
+    if (error) {
+      setContactError(error);
+      return;
+    }
 
     updateMutation.mutate(
       {
@@ -63,6 +98,22 @@ export default function StudentProfilePage() {
         onSuccess: () => setSuccess("Profilin başarıyla güncellendi."),
       }
     );
+  };
+
+  const validateContactValue = (preference: string, value: string): string => {
+    if (!value) return "";
+    if (preference === "PHONE") {
+      const phoneRegex = /^(\+90|0)?[5][0-9]{9}$/;
+      if (!phoneRegex.test(value.replace(/\s/g, ""))) {
+        return "Geçerli bir telefon numarası giriniz. (Örn: 05XX XXX XX XX)";
+      }
+    } else if (preference === "EMAIL") {
+      const emailRegex = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(value)) {
+        return "Geçerli bir email adresi giriniz.";
+      }
+    }
+    return "";
   };
 
   if (isLoading) {
@@ -84,15 +135,21 @@ export default function StudentProfilePage() {
 
       {success && <Alert type="success" message={success} className="mb-6" />}
       {updateMutation.isError && (
-        <Alert type="error" message="Profil güncellenirken hata oluştu." className="mb-6" />
+        <Alert
+          type="error"
+          message="Profil güncellenirken hata oluştu."
+          className="mb-6"
+        />
       )}
 
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Üniversite</label>
+            <label className="text-sm font-medium text-gray-700">
+              Üniversite
+            </label>
             <div className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-600">
-              {universityName || "Üniversite bilgisi bulunamadı"}
+              {universityName || "Üniversite bilgisi yükleniyor..."}
             </div>
             <p className="text-xs text-gray-400">
               Üniversiteniz email adresinizden otomatik belirlenir.
@@ -153,7 +210,9 @@ export default function StudentProfilePage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               required
             />
-            <p className="text-xs text-gray-400 text-right">{form.bio.length}/500</p>
+            <p className="text-xs text-gray-400 text-right">
+              {form.bio.length}/500
+            </p>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -170,7 +229,9 @@ export default function StudentProfilePage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               required
             />
-            <p className="text-xs text-gray-400 text-right">{form.motivation.length}/1000</p>
+            <p className="text-xs text-gray-400 text-right">
+              {form.motivation.length}/1000
+            </p>
           </div>
 
           <Select
@@ -189,14 +250,24 @@ export default function StudentProfilePage() {
           <Input
             label="İletişim Bilgisi"
             name="contactValue"
-            placeholder={form.contactPreference === "PHONE" ? "05XX XXX XX XX" : "ornek@mail.com"}
+            placeholder={
+              form.contactPreference === "PHONE"
+                ? "05XX XXX XX XX"
+                : "ornek@mail.com"
+            }
             value={form.contactValue}
             onChange={handleChange}
-            hint="Bu bilgi sadece eşleşme kabul edildiğinde paylaşılır."
+            error={contactError}
+            hint={!contactError ? "Bu bilgi sadece eşleşme kabul edildiğinde paylaşılır." : undefined}
             required
           />
 
-          <Button type="submit" loading={updateMutation.isPending} fullWidth size="lg">
+          <Button
+            type="submit"
+            loading={updateMutation.isPending}
+            fullWidth
+            size="lg"
+          >
             Profili Kaydet
           </Button>
         </form>

@@ -18,10 +18,17 @@ export default function RegisterPage() {
     password: "",
     firstName: "",
     lastName: "",
+    privacyPolicyAccepted: false,
+    termsAccepted: false,
   });
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showEmailChange, setShowEmailChange] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [changeLoading, setChangeLoading] = useState(false);
+  const [changeSuccess, setChangeSuccess] = useState("");
+  const [changeError, setChangeError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -48,6 +55,30 @@ export default function RegisterPage() {
     }
   };
 
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangeError("");
+    setChangeSuccess("");
+    setChangeLoading(true);
+
+    try {
+      const res = await api.put("/api/auth/change-email", {
+        currentEmail: form.email,
+        newEmail,
+      });
+      setChangeSuccess(res.data.message);
+      setShowEmailChange(false);
+      // Formdaki emaili güncelle ki tekrar değişiklik yapılabilsin
+      setForm({ ...form, email: newEmail });
+      setNewEmail("");
+    } catch (err: any) {
+      setChangeError(
+        err.response?.data?.message || "Bir hata oluştu."
+      );
+    } finally {
+      setChangeLoading(false);
+    }
+  };
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
@@ -64,14 +95,71 @@ export default function RegisterPage() {
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
           {success ? (
-            <div className="text-center py-4">
-              <Alert type="success" message={success} />
-              <p className="text-sm text-gray-500 mt-4">
-                Email doğrulama linkine tıkladıktan sonra{" "}
-                <Link href={ROUTES.LOGIN} className="text-blue-700 font-medium hover:underline">
-                  giriş yapabilirsin.
-                </Link>
-              </p>
+            <div className="text-center py-4 flex flex-col gap-4">
+              <Alert type="success" message={changeSuccess || success} />
+
+              {!showEmailChange ? (
+                <>
+                  <p className="text-sm text-gray-500">
+                    Email doğrulama linkine tıkladıktan sonra{" "}
+                    <Link
+                      href={ROUTES.LOGIN}
+                      className="text-blue-700 font-medium hover:underline"
+                    >
+                      giriş yapabilirsin.
+                    </Link>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailChange(true)}
+                    className="text-sm text-gray-400 hover:text-blue-700 transition-colors"
+                  >
+                    Email adresini yanlış mı girdin?
+                  </button>
+                </>
+              ) : (
+                <div className="text-left">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Yeni email adresini gir, doğrulama linkini oraya gönderelim.
+                  </p>
+
+                  {changeError && (
+                    <Alert type="error" message={changeError} className="mb-3" />
+                  )}
+
+                  <form onSubmit={handleEmailChange} className="flex flex-col gap-3">
+                    <Input
+                      label="Yeni Email"
+                      type="email"
+                      placeholder={
+                        role === "STUDENT"
+                          ? "ornek@ogr.uni.edu.tr"
+                          : "ornek@gmail.com"
+                      }
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      required
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        fullWidth
+                        onClick={() => setShowEmailChange(false)}
+                      >
+                        İptal
+                      </Button>
+                      <Button
+                        type="submit"
+                        fullWidth
+                        loading={changeLoading}
+                      >
+                        Güncelle
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -82,22 +170,20 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setRole("STUDENT")}
-                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
-                    role === "STUDENT"
-                      ? "border-blue-700 bg-blue-50 text-blue-700"
-                      : "border-gray-200 text-gray-500 hover:border-gray-300"
-                  }`}
+                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${role === "STUDENT"
+                    ? "border-blue-700 bg-blue-50 text-blue-700"
+                    : "border-gray-200 text-gray-500 hover:border-gray-300"
+                    }`}
                 >
                   🎓 Öğrenciyim
                 </button>
                 <button
                   type="button"
                   onClick={() => setRole("DONOR")}
-                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
-                    role === "DONOR"
-                      ? "border-blue-700 bg-blue-50 text-blue-700"
-                      : "border-gray-200 text-gray-500 hover:border-gray-300"
-                  }`}
+                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${role === "DONOR"
+                    ? "border-blue-700 bg-blue-50 text-blue-700"
+                    : "border-gray-200 text-gray-500 hover:border-gray-300"
+                    }`}
                 >
                   💙 Burs Vermek İstiyorum
                 </button>
@@ -152,7 +238,50 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                 />
+                {/* Onay checkboxları */}
+                <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-lg">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.privacyPolicyAccepted}
+                      onChange={(e) =>
+                        setForm({ ...form, privacyPolicyAccepted: e.target.checked })
+                      }
+                      className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-700 focus:ring-blue-500"
+                      required
+                    />
+                    <span className="text-sm text-gray-600">
+                      <Link href="/gizlilik" target="_blank" className="text-blue-700 hover:underline font-medium">
+                        Gizlilik Politikası
+                      </Link>
+                      'nı ve{" "}
+                      <Link href="/kvkk" target="_blank" className="text-blue-700 hover:underline font-medium">
+                        KVKK Aydınlatma Metni
+                      </Link>
+                      'ni okudum, kabul ediyorum.{" "}
+                      <span className="text-red-500">*</span>
+                    </span>
+                  </label>
 
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.termsAccepted}
+                      onChange={(e) =>
+                        setForm({ ...form, termsAccepted: e.target.checked })
+                      }
+                      className="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-700 focus:ring-blue-500"
+                      required
+                    />
+                    <span className="text-sm text-gray-600">
+                      <Link href="/kullanim-kosullari" target="_blank" className="text-blue-700 hover:underline font-medium">
+                        Kullanım Koşulları
+                      </Link>
+                      'nı okudum, kabul ediyorum.{" "}
+                      <span className="text-red-500">*</span>
+                    </span>
+                  </label>
+                </div>
                 <Button type="submit" fullWidth loading={loading} size="lg">
                   Kayıt Ol
                 </Button>

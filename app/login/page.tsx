@@ -18,6 +18,11 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [resendEmail, setResendEmail] = useState("");
+    const [resendLoading, setResendLoading] = useState(false);
+    const [resendSuccess, setResendSuccess] = useState("");
+    const [resendError, setResendError] = useState("");
+    const [showResend, setShowResend] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,6 +46,26 @@ export default function LoginPage() {
             );
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleResend = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setResendError("");
+        setResendSuccess("");
+        setResendLoading(true);
+
+        try {
+            const res = await api.post(
+                `/api/auth/resend-verification?email=${encodeURIComponent(resendEmail)}`
+            );
+            setResendSuccess(res.data.message);
+        } catch (err: any) {
+            setResendError(
+                err.response?.data?.message || "Bir hata oluştu."
+            );
+        } finally {
+            setResendLoading(false);
         }
     };
 
@@ -90,6 +115,45 @@ export default function LoginPage() {
                     </form>
                 </div>
 
+                {/* Doğrulama emaili yeniden gönder */}
+                <div className="mt-4 text-center">
+                    <button
+                        type="button"
+                        onClick={() => setShowResend(!showResend)}
+                        className="text-sm text-gray-400 hover:text-blue-700 transition-colors"
+                    >
+                        Doğrulama emaili gelmedi mi?
+                    </button>
+                </div>
+
+                {showResend && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-sm text-gray-600 mb-3">
+                            Email adresinizi girin, yeni doğrulama linki gönderelim.
+                        </p>
+
+                        {resendSuccess && (
+                            <Alert type="success" message={resendSuccess} className="mb-3" />
+                        )}
+                        {resendError && (
+                            <Alert type="error" message={resendError} className="mb-3" />
+                        )}
+
+                        <form onSubmit={handleResend} className="flex gap-2">
+                            <input
+                                type="email"
+                                placeholder="Email adresiniz"
+                                value={resendEmail}
+                                onChange={(e) => setResendEmail(e.target.value)}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                            <Button type="submit" size="sm" loading={resendLoading}>
+                                Gönder
+                            </Button>
+                        </form>
+                    </div>
+                )}
                 {/* Alt link */}
                 <p className="text-center text-sm text-gray-500 mt-6">
                     Hesabın yok mu?{" "}

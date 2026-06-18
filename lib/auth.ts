@@ -22,3 +22,9 @@ export const clearAuth = () => {
   Cookies.remove(ROLE_KEY, { path: "/" });
   Cookies.remove(EMAIL_KEY, { path: "/" });
 };
+
+export const getUniversityDomain = (): string | undefined => {
+  const email = getEmail();
+  if (!email) return undefined;
+  return email.substring(email.indexOf('@') + 1);
+};

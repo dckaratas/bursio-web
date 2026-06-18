@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_ROUTES = ["/", "/login", "/register", "/verify-email", "/hakkinda", "/gizlilik", "/iletisim"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/login",
+  "/register",
+  "/verify-email",
+  "/gizlilik",
+  "/kullanim-kosullari",
+  "/kvkk",
+  "/hakkinda",
+  "/iletisim",
+];
 
 const ROLE_ROUTES: Record<string, string[]> = {
   STUDENT: ["/student"],

@@ -15,17 +15,15 @@ export default function Footer() {
           </div>
 
           {/* Linkler */}
-          <div className="flex items-center gap-6 text-sm text-gray-500">
-            <Link href="/hakkinda" className="hover:text-blue-700 transition-colors">
-              Hakkında
-            </Link>
-            <Link href="/gizlilik" className="hover:text-blue-700 transition-colors">
-              Gizlilik Politikası
-            </Link>
-            <Link href="/iletisim" className="hover:text-blue-700 transition-colors">
-              İletişim
-            </Link>
-          </div>
+          <Link href="/kvkk" className="hover:text-blue-700 transition-colors">
+            KVKK
+          </Link>
+          <Link href="/gizlilik" className="hover:text-blue-700 transition-colors">
+            Gizlilik Politikası
+          </Link>
+          <Link href="/kullanim-kosullari" className="hover:text-blue-700 transition-colors">
+            Kullanım Koşulları
+          </Link>
 
           {/* Copyright */}
           <p className="text-sm text-gray-400">
