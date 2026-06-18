@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { User, ChevronLeft, ChevronRight } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
-import { API_ENDPOINTS } from "@/constants";
-import api from "@/lib/api";
-import { User as UserType, AccountStatus, PageResponse } from "@/types";
+import { useAdminUsers, useUpdateUserStatus } from "@/hooks/useAdmin";
+import { AccountStatus } from "@/types";
 
 const statusVariant: Record<AccountStatus, "success" | "warning" | "danger"> = {
   ACTIVE: "success",
@@ -24,43 +23,11 @@ const statusLabel: Record<AccountStatus, string> = {
 };
 
 export default function AdminUsersPage() {
-  const [data, setData] = useState<PageResponse<UserType> | null>(null);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [updating, setUpdating] = useState<number | null>(null);
+  const { data, isLoading, error } = useAdminUsers(page);
+  const updateStatusMutation = useUpdateUserStatus();
 
-  const fetchUsers = async (p: number) => {
-    setLoading(true);
-    try {
-      const res = await api.get(API_ENDPOINTS.ADMIN.USERS, {
-        params: { page: p, size: 20 },
-      });
-      setData(res.data);
-    } catch {
-      setError("Kullanıcılar yüklenirken hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers(page);
-  }, [page]);
-
-  const handleStatusChange = async (userId: number, status: AccountStatus) => {
-    setUpdating(userId);
-    try {
-      await api.put(API_ENDPOINTS.ADMIN.USER_STATUS(userId), { status });
-      await fetchUsers(page);
-    } catch {
-      setError("Durum güncellenirken hata oluştu.");
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700" />
@@ -77,10 +44,16 @@ export default function AdminUsersPage() {
         </p>
       </div>
 
-      {error && <Alert type="error" message={error} className="mb-6" />}
+      {error && (
+        <Alert type="error" message="Kullanıcılar yüklenirken hata oluştu." className="mb-6" />
+      )}
+
+      {updateStatusMutation.isError && (
+        <Alert type="error" message="Durum güncellenirken hata oluştu." className="mb-6" />
+      )}
 
       <div className="flex flex-col gap-3">
-        {data?.content.map((user) => (
+        {data?.content.map((user: any) => (
           <Card key={user.id} padding="sm">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3">
@@ -97,12 +70,24 @@ export default function AdminUsersPage() {
 
               <div className="flex items-center gap-3 flex-wrap">
                 <Badge
-                  label={user.role === "STUDENT" ? "Öğrenci" : user.role === "DONOR" ? "Burs Veren" : "Admin"}
-                  variant={user.role === "STUDENT" ? "info" : user.role === "DONOR" ? "success" : "gray"}
+                  label={
+                    user.role === "STUDENT"
+                      ? "Öğrenci"
+                      : user.role === "DONOR"
+                      ? "Burs Veren"
+                      : "Admin"
+                  }
+                  variant={
+                    user.role === "STUDENT"
+                      ? "info"
+                      : user.role === "DONOR"
+                      ? "success"
+                      : "gray"
+                  }
                 />
                 <Badge
-                  label={statusLabel[user.status]}
-                  variant={statusVariant[user.status]}
+                  label={statusLabel[user.status as AccountStatus]}
+                  variant={statusVariant[user.status as AccountStatus]}
                 />
 
                 {user.role !== "ADMIN" && (
@@ -113,9 +98,12 @@ export default function AdminUsersPage() {
                     ]}
                     value={user.status === "SUSPENDED" ? "SUSPENDED" : "ACTIVE"}
                     onChange={(e) =>
-                      handleStatusChange(user.id, e.target.value as AccountStatus)
+                      updateStatusMutation.mutate({
+                        userId: user.id,
+                        status: e.target.value as AccountStatus,
+                      })
                     }
-                    disabled={updating === user.id}
+                    disabled={updateStatusMutation.isPending}
                   />
                 )}
               </div>
@@ -124,7 +112,6 @@ export default function AdminUsersPage() {
         ))}
       </div>
 
-      {/* Pagination */}
       {data && data.totalPages > 1 && (
         <div className="flex items-center justify-between mt-6">
           <Button

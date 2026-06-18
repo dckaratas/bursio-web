@@ -1,22 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
 import Card from "@/components/ui/Card";
-import { API_ENDPOINTS, ROUTES } from "@/constants";
-import api from "@/lib/api";
-import { University, StudentProfile } from "@/types";
+import { useStudentProfile, useUpdateStudentProfile } from "@/hooks/useStudentProfile";
 
 export default function StudentProfilePage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const { data: profile, isLoading } = useStudentProfile();
+  const updateMutation = useUpdateStudentProfile();
+  const [universityName, setUniversityName] = useState("");
   const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     department: "",
@@ -27,41 +23,21 @@ export default function StudentProfilePage() {
     contactPreference: "",
     contactValue: "",
   });
-  const [universityName, setUniversityName] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-
-        // Mevcut profili çek
-        try {
-          const profileRes = await api.get<StudentProfile>(
-            API_ENDPOINTS.STUDENT.PROFILE
-          );
-          const p = profileRes.data;
-          setUniversityName(p.universityName || "");
-          setForm({
-            department: p.department || "",
-            grade: p.grade?.toString() || "",
-            gpa: p.gpa?.toString() || "",
-            bio: p.bio || "",
-            motivation: p.motivation || "",
-            contactPreference: p.contactPreference || "",
-            contactValue: p.contactValue || "",
-          });
-        } catch {
-          // Profil henüz yok, form boş kalır
-        }
-      } catch {
-        setError("Veriler yüklenirken hata oluştu.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (profile) {
+      setUniversityName(profile.universityName || "");
+      setForm({
+        department: profile.department || "",
+        grade: profile.grade?.toString() || "",
+        gpa: profile.gpa?.toString() || "",
+        bio: profile.bio || "",
+        motivation: profile.motivation || "",
+        contactPreference: profile.contactPreference || "",
+        contactValue: profile.contactValue || "",
+      });
+    }
+  }, [profile]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -71,12 +47,10 @@ export default function StudentProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setSuccess("");
-    setSaving(true);
 
-    try {
-      await api.put(API_ENDPOINTS.STUDENT.PROFILE, {
+    updateMutation.mutate(
+      {
         department: form.department,
         grade: Number(form.grade),
         gpa: form.gpa ? Number(form.gpa) : null,
@@ -84,16 +58,14 @@ export default function StudentProfilePage() {
         motivation: form.motivation,
         contactPreference: form.contactPreference,
         contactValue: form.contactValue,
-      });
-      setSuccess("Profilin başarıyla güncellendi.");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Bir hata oluştu.");
-    } finally {
-      setSaving(false);
-    }
+      },
+      {
+        onSuccess: () => setSuccess("Profilin başarıyla güncellendi."),
+      }
+    );
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700" />
@@ -111,7 +83,9 @@ export default function StudentProfilePage() {
       </div>
 
       {success && <Alert type="success" message={success} className="mb-6" />}
-      {error && <Alert type="error" message={error} className="mb-6" />}
+      {updateMutation.isError && (
+        <Alert type="error" message="Profil güncellenirken hata oluştu." className="mb-6" />
+      )}
 
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -179,9 +153,7 @@ export default function StudentProfilePage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               required
             />
-            <p className="text-xs text-gray-400 text-right">
-              {form.bio.length}/500
-            </p>
+            <p className="text-xs text-gray-400 text-right">{form.bio.length}/500</p>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -198,9 +170,7 @@ export default function StudentProfilePage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               required
             />
-            <p className="text-xs text-gray-400 text-right">
-              {form.motivation.length}/1000
-            </p>
+            <p className="text-xs text-gray-400 text-right">{form.motivation.length}/1000</p>
           </div>
 
           <Select
@@ -219,22 +189,16 @@ export default function StudentProfilePage() {
           <Input
             label="İletişim Bilgisi"
             name="contactValue"
-            placeholder={
-              form.contactPreference === "PHONE"
-                ? "05XX XXX XX XX"
-                : "ornek@mail.com"
-            }
+            placeholder={form.contactPreference === "PHONE" ? "05XX XXX XX XX" : "ornek@mail.com"}
             value={form.contactValue}
             onChange={handleChange}
             hint="Bu bilgi sadece eşleşme kabul edildiğinde paylaşılır."
             required
           />
 
-          <div className="flex gap-3 pt-2">
-            <Button type="submit" loading={saving} fullWidth size="lg">
-              Profili Kaydet
-            </Button>
-          </div>
+          <Button type="submit" loading={updateMutation.isPending} fullWidth size="lg">
+            Profili Kaydet
+          </Button>
         </form>
       </Card>
     </div>

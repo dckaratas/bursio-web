@@ -1,84 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Input from "@/components/ui/Input";
-import { API_ENDPOINTS } from "@/constants";
-import api from "@/lib/api";
-import { University, PageResponse } from "@/types";
+import {
+  useAdminUniversities,
+  useAddUniversity,
+  useToggleUniversity,
+} from "@/hooks/useAdmin";
 
 export default function AdminUniversitiesPage() {
-  const [data, setData] = useState<PageResponse<University> | null>(null);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [toggling, setToggling] = useState<number | null>(null);
+  const [newUni, setNewUni] = useState({ name: "", city: "", emailDomains: "" });
 
-  const [newUni, setNewUni] = useState({
-    name: "",
-    city: "",
-    emailDomains: "",
-  });
-
-  const fetchUniversities = async (p: number) => {
-    setLoading(true);
-    try {
-      const res = await api.get(API_ENDPOINTS.ADMIN.UNIVERSITIES, {
-        params: { page: p, size: 20 },
-      });
-      setData(res.data);
-    } catch {
-      setError("Üniversiteler yüklenirken hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUniversities(page);
-  }, [page]);
+  const { data, isLoading, error } = useAdminUniversities(page);
+  const addMutation = useAddUniversity();
+  const toggleMutation = useToggleUniversity();
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAdding(true);
-    setError("");
-    try {
-      await api.post(API_ENDPOINTS.ADMIN.UNIVERSITIES, {
+    addMutation.mutate(
+      {
         name: newUni.name,
         city: newUni.city,
-        emailDomains: newUni.emailDomains.split(",").map((d) => d.trim()).filter(Boolean),
-      });
-      setSuccess("Üniversite başarıyla eklendi.");
-      setShowAddForm(false);
-      setNewUni({ name: "", city: "", emailDomains: "" });
-      await fetchUniversities(page);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Bir hata oluştu.");
-    } finally {
-      setAdding(false);
-    }
+        emailDomains: newUni.emailDomains
+          .split(",")
+          .map((d) => d.trim())
+          .filter(Boolean),
+      },
+      {
+        onSuccess: () => {
+          setShowAddForm(false);
+          setNewUni({ name: "", city: "", emailDomains: "" });
+        },
+      }
+    );
   };
 
-  const handleToggle = async (universityId: number) => {
-    setToggling(universityId);
-    try {
-      await api.patch(API_ENDPOINTS.ADMIN.UNIVERSITY_TOGGLE(universityId));
-      await fetchUniversities(page);
-    } catch {
-      setError("Durum güncellenirken hata oluştu.");
-    } finally {
-      setToggling(null);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700" />
@@ -101,10 +65,18 @@ export default function AdminUniversitiesPage() {
         </Button>
       </div>
 
-      {error && <Alert type="error" message={error} className="mb-4" />}
-      {success && <Alert type="success" message={success} className="mb-4" />}
+      {error && (
+        <Alert type="error" message="Üniversiteler yüklenirken hata oluştu." className="mb-4" />
+      )}
 
-      {/* Ekleme Formu */}
+      {addMutation.isError && (
+        <Alert type="error" message="Üniversite eklenirken hata oluştu." className="mb-4" />
+      )}
+
+      {addMutation.isSuccess && (
+        <Alert type="success" message="Üniversite başarıyla eklendi." className="mb-4" />
+      )}
+
       {showAddForm && (
         <Card className="mb-6">
           <h3 className="font-semibold text-gray-900 mb-4">Yeni Üniversite Ekle</h3>
@@ -134,7 +106,7 @@ export default function AdminUniversitiesPage() {
               required
             />
             <div className="flex gap-3">
-              <Button type="submit" loading={adding}>
+              <Button type="submit" loading={addMutation.isPending}>
                 Kaydet
               </Button>
               <Button
@@ -150,7 +122,7 @@ export default function AdminUniversitiesPage() {
       )}
 
       <div className="flex flex-col gap-3">
-        {data?.content.map((uni) => (
+        {data?.content.map((uni: any) => (
           <Card key={uni.id} padding="sm">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex-1">
@@ -163,7 +135,7 @@ export default function AdminUniversitiesPage() {
                 </div>
                 <p className="text-sm text-gray-400">{uni.city}</p>
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {uni.emailDomains.map((domain) => (
+                  {uni.emailDomains.map((domain: string) => (
                     <span
                       key={domain}
                       className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
@@ -177,8 +149,8 @@ export default function AdminUniversitiesPage() {
               <Button
                 variant={uni.active ? "danger" : "secondary"}
                 size="sm"
-                loading={toggling === uni.id}
-                onClick={() => handleToggle(uni.id)}
+                loading={toggleMutation.isPending}
+                onClick={() => toggleMutation.mutate(uni.id)}
               >
                 {uni.active ? "Pasif Yap" : "Aktif Et"}
               </Button>

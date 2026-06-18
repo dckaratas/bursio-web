@@ -84,3 +84,15 @@ export interface ErrorResponse {
   message: string;
   timestamp: string;
 }
+
+export interface Report {
+  id: number;
+  reporterId: number;
+  reporterEmail: string;
+  reportedUserId: number;
+  reportedUserEmail: string;
+  reason: string;
+  description: string;
+  reportStatus: ReportStatus;
+  createdAt: string;
+}

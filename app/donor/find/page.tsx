@@ -1,22 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Shuffle } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
-import { API_ENDPOINTS, ROUTES } from "@/constants";
+import { ROUTES, API_ENDPOINTS } from "@/constants";
+import { useCreateRandomMatch } from "@/hooks/useMatches";
 import api from "@/lib/api";
 import { University } from "@/types";
+import { useQuery } from "@tanstack/react-query";
 
 export default function DonorFindPage() {
-  const [universities, setUniversities] = useState<University[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
-
+  const [success, setSuccess] = useState(false);
   const [filter, setFilter] = useState({
     universityId: "",
     department: "",
@@ -26,12 +24,19 @@ export default function DonorFindPage() {
     donorMessage: "",
   });
 
-  useEffect(() => {
-    api
-      .get(API_ENDPOINTS.UNIVERSITIES, { params: { size: 100 } })
-      .then((res) => setUniversities(res.data.content))
-      .catch(() => {});
-  }, []);
+  const { data: universities = [] } = useQuery({
+    queryKey: ["universities"],
+    queryFn: async () => {
+      const res = await api.get<{ content: University[] }>(
+        API_ENDPOINTS.UNIVERSITIES,
+        { params: { size: 100 } }
+      );
+      return res.data.content;
+    },
+    staleTime: 60 * 60 * 1000,
+  });
+
+  const createMatchMutation = useCreateRandomMatch();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -41,28 +46,20 @@ export default function DonorFindPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
 
-    try {
-      await api.post(API_ENDPOINTS.MATCHES.RANDOM, {
+    createMatchMutation.mutate(
+      {
         universityId: filter.universityId ? Number(filter.universityId) : null,
         department: filter.department || null,
         minGrade: filter.minGrade ? Number(filter.minGrade) : null,
         maxGrade: filter.maxGrade ? Number(filter.maxGrade) : null,
         minGpa: filter.minGpa ? Number(filter.minGpa) : null,
         donorMessage: filter.donorMessage || null,
-      });
-
-      setSuccess(
-        "Eşleşme talebi oluşturuldu! Öğrenci kabul ederse seni bilgilendireceğiz."
-      );
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Bir hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
+      },
+      {
+        onSuccess: () => setSuccess(true),
+      }
+    );
   };
 
   return (
@@ -76,12 +73,16 @@ export default function DonorFindPage() {
 
       {success && (
         <div className="mb-6">
-          <Alert type="success" message={success} />
+          <Alert
+            type="success"
+            message="Eşleşme talebi oluşturuldu! Öğrenci kabul ederse seni bilgilendireceğiz."
+          />
           <div className="mt-4 flex gap-3">
             <Button
               variant="secondary"
               onClick={() => {
-                setSuccess("");
+                setSuccess(false);
+                createMatchMutation.reset();
                 setFilter({
                   universityId: "",
                   department: "",
@@ -103,7 +104,13 @@ export default function DonorFindPage() {
 
       {!success && (
         <Card>
-          {error && <Alert type="error" message={error} className="mb-6" />}
+          {createMatchMutation.isError && (
+            <Alert
+              type="error"
+              message={(createMatchMutation.error as any)?.response?.data?.message || "Bir hata oluştu."}
+              className="mb-6"
+            />
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -119,7 +126,7 @@ export default function DonorFindPage() {
               value={filter.universityId}
               onChange={handleChange}
               placeholder="Tüm üniversiteler"
-              options={universities.map((u) => ({
+              options={universities.map((u: University) => ({
                 value: u.id.toString(),
                 label: `${u.name} — ${u.city}`,
               }))}
@@ -194,7 +201,7 @@ export default function DonorFindPage() {
               type="submit"
               fullWidth
               size="lg"
-              loading={loading}
+              loading={createMatchMutation.isPending}
             >
               <Shuffle className="w-4 h-4 mr-2" />
               Rastgele Eşleş

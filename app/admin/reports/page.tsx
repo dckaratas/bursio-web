@@ -1,25 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Flag, ChevronLeft, ChevronRight } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
-import { API_ENDPOINTS } from "@/constants";
-import api from "@/lib/api";
-import { PageResponse, ReportStatus } from "@/types";
-
-interface Report {
-  id: number;
-  reporterEmail: string;
-  reportedUserEmail: string;
-  reason: string;
-  description: string;
-  reportStatus: ReportStatus;
-  createdAt: string;
-}
+import { useAdminReports, useUpdateReportStatus } from "@/hooks/useAdmin";
+import { ReportStatus, Report  } from "@/types";
 
 const statusVariant: Record<ReportStatus, "danger" | "warning" | "success"> = {
   OPEN: "danger",
@@ -41,50 +30,12 @@ const reasonLabel: Record<string, string> = {
 };
 
 export default function AdminReportsPage() {
-  const [data, setData] = useState<PageResponse<Report> | null>(null);
   const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "">("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [updating, setUpdating] = useState<number | null>(null);
+  const { data, isLoading, error } = useAdminReports(page, statusFilter);
+  const updateStatusMutation = useUpdateReportStatus();
 
-  const fetchReports = async (p: number) => {
-    setLoading(true);
-    try {
-      const res = await api.get(API_ENDPOINTS.ADMIN.REPORTS, {
-        params: {
-          page: p,
-          size: 20,
-          status: statusFilter || undefined,
-        },
-      });
-      setData(res.data);
-    } catch {
-      setError("Şikayetler yüklenirken hata oluştu.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchReports(page);
-  }, [page, statusFilter]);
-
-  const handleStatusChange = async (reportId: number, status: ReportStatus) => {
-    setUpdating(reportId);
-    try {
-      await api.put(`${API_ENDPOINTS.ADMIN.REPORT_STATUS(reportId)}`, null, {
-        params: { status },
-      });
-      await fetchReports(page);
-    } catch {
-      setError("Durum güncellenirken hata oluştu.");
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700" />
@@ -116,7 +67,13 @@ export default function AdminReportsPage() {
         />
       </div>
 
-      {error && <Alert type="error" message={error} className="mb-6" />}
+      {error && (
+        <Alert type="error" message="Şikayetler yüklenirken hata oluştu." className="mb-6" />
+      )}
+
+      {updateStatusMutation.isError && (
+        <Alert type="error" message="Durum güncellenirken hata oluştu." className="mb-6" />
+      )}
 
       {data?.content.length === 0 ? (
         <Card className="text-center py-16">
@@ -125,7 +82,7 @@ export default function AdminReportsPage() {
         </Card>
       ) : (
         <div className="flex flex-col gap-3">
-          {data?.content.map((report) => (
+          {data?.content.map((report: Report ) => (
             <Card key={report.id} padding="sm">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex-1">
@@ -165,9 +122,12 @@ export default function AdminReportsPage() {
                   ]}
                   value={report.reportStatus}
                   onChange={(e) =>
-                    handleStatusChange(report.id, e.target.value as ReportStatus)
+                    updateStatusMutation.mutate({
+                      reportId: report.id,
+                      status: e.target.value as ReportStatus,
+                    })
                   }
-                  disabled={updating === report.id}
+                  disabled={updateStatusMutation.isPending}
                 />
               </div>
             </Card>
