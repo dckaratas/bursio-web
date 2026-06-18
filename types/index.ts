@@ -26,6 +26,7 @@ export interface StudentProfile {
   id: number;
   firstName: string;
   lastName: string;
+  universityId: number;  
   universityName: string;
   city: string;
   department: string;
@@ -50,8 +51,11 @@ export interface MatchResponse {
   contactValue: string | null;
   status: MatchStatus;
   donorMessage: string | null;
+  respondedAt: string | null; 
   expiresAt: string;
   createdAt: string;
+  donorId: number;
+  studentId: number;
 }
 
 export interface University {

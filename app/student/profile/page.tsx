@@ -13,14 +13,12 @@ import { University, StudentProfile } from "@/types";
 
 export default function StudentProfilePage() {
   const router = useRouter();
-  const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    universityId: "",
     department: "",
     grade: "",
     gpa: "",
@@ -29,16 +27,12 @@ export default function StudentProfilePage() {
     contactPreference: "",
     contactValue: "",
   });
+  const [universityName, setUniversityName] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Üniversiteleri çek
-        const uniRes = await api.get(API_ENDPOINTS.UNIVERSITIES, {
-          params: { size: 100 },
-        });
-        setUniversities(uniRes.data.content);
 
         // Mevcut profili çek
         try {
@@ -46,11 +40,8 @@ export default function StudentProfilePage() {
             API_ENDPOINTS.STUDENT.PROFILE
           );
           const p = profileRes.data;
+          setUniversityName(p.universityName || "");
           setForm({
-            universityId:
-              uniRes.data.content
-                .find((u: University) => u.name === p.universityName)
-                ?.id?.toString() || "",
             department: p.department || "",
             grade: p.grade?.toString() || "",
             gpa: p.gpa?.toString() || "",
@@ -86,7 +77,6 @@ export default function StudentProfilePage() {
 
     try {
       await api.put(API_ENDPOINTS.STUDENT.PROFILE, {
-        universityId: Number(form.universityId),
         department: form.department,
         grade: Number(form.grade),
         gpa: form.gpa ? Number(form.gpa) : null,
@@ -125,18 +115,15 @@ export default function StudentProfilePage() {
 
       <Card>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <Select
-            label="Üniversite"
-            name="universityId"
-            value={form.universityId}
-            onChange={handleChange}
-            placeholder="Üniversite seç"
-            options={universities.map((u) => ({
-              value: u.id.toString(),
-              label: `${u.name} — ${u.city}`,
-            }))}
-            required
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Üniversite</label>
+            <div className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-600">
+              {universityName || "Üniversite bilgisi bulunamadı"}
+            </div>
+            <p className="text-xs text-gray-400">
+              Üniversiteniz email adresinizden otomatik belirlenir.
+            </p>
+          </div>
 
           <Input
             label="Bölüm"

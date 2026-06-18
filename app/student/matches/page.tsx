@@ -9,6 +9,7 @@ import Alert from "@/components/ui/Alert";
 import { API_ENDPOINTS } from "@/constants";
 import api from "@/lib/api";
 import { MatchResponse, MatchStatus } from "@/types";
+import ReportModal from "@/components/ui/ReportModal";
 
 const statusConfig: Record<
     MatchStatus,
@@ -25,6 +26,11 @@ export default function StudentMatchesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [responding, setResponding] = useState<number | null>(null);
+    const [reportModal, setReportModal] = useState<{
+        open: boolean;
+        userId: number;
+        userName: string;
+    }>({ open: false, userId: 0, userName: "" });
 
     const fetchMatches = async () => {
         try {
@@ -150,10 +156,31 @@ export default function StudentMatchesPage() {
                                     </div>
                                 )}
                             </div>
+                            {(match.status === "PENDING" || match.status === "ACCEPTED") && (
+                                <button
+                                    onClick={() =>
+                                        setReportModal({
+                                            open: true,
+                                            userId: match.donorId,
+                                            userName: `${match.donorFirstName} ${match.donorLastName}`,
+                                        })
+                                    }
+                                    className="text-xs text-gray-400 hover:text-red-500 transition-colors mt-2"
+                                >
+                                    Bu kullanıcıyı şikayet et
+                                </button>
+                            )}
                         </Card>
                     ))}
                 </div>
             )}
+
+            <ReportModal
+                open={reportModal.open}
+                onClose={() => setReportModal({ open: false, userId: 0, userName: "" })}
+                reportedUserId={reportModal.userId}
+                reportedUserName={reportModal.userName}
+            />
         </div>
     );
 }

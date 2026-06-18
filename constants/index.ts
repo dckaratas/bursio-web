@@ -43,5 +43,6 @@ export const API_ENDPOINTS = {
     UNIVERSITY_DOMAIN: (id: number) => `/api/admin/universities/${id}/domains`,
     UNIVERSITY_TOGGLE: (id: number) => `/api/admin/universities/${id}/toggle`,
   },
-  UNIVERSITIES: "/api/admin/universities",
+  UNIVERSITIES: "/api/universities",
+  REPORTS: "/api/reports", 
 } as const;
