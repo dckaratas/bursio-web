@@ -5,7 +5,10 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearAuth, getRole, isAuthenticated } from "@/lib/auth";
 import { ROUTES } from "@/constants";
-import { LogOut, GraduationCap, LayoutDashboard, Search, List, User, Flag, University, Users } from "lucide-react";
+import {
+  LogOut, GraduationCap, LayoutDashboard, Search,
+  List, User, Flag, University, Users, Menu, X
+} from "lucide-react";
 import type { Role } from "@/types";
 
 interface NavLink {
@@ -36,10 +39,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const [authenticated, setAuthenticated] = useState(false);
   const [role, setRole] = useState<Role | undefined>();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setAuthenticated(isAuthenticated());
     setRole(getRole());
+    setMenuOpen(false);
   }, [pathname]);
 
   const handleLogout = () => {
@@ -62,9 +67,9 @@ export default function Navbar() {
           <span className="text-lg font-bold text-blue-700">BursIO</span>
         </Link>
 
-        {/* Orta linkler */}
+        {/* Desktop — orta linkler */}
         {authenticated && links.length > 0 && (
-          <div className="flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -82,8 +87,8 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* Sağ taraf */}
-        <div className="flex items-center gap-3">
+        {/* Desktop — sağ */}
+        <div className="hidden md:flex items-center gap-3">
           {authenticated ? (
             <button
               onClick={handleLogout}
@@ -94,22 +99,65 @@ export default function Navbar() {
             </button>
           ) : (
             <>
-              <Link
-                href={ROUTES.LOGIN}
-                className="text-sm text-gray-600 hover:text-blue-700 transition-colors"
-              >
+              <Link href={ROUTES.LOGIN} className="text-sm text-gray-600 hover:text-blue-700 transition-colors">
                 Giriş Yap
               </Link>
-              <Link
-                href={ROUTES.REGISTER}
-                className="text-sm bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors"
-              >
+              <Link href={ROUTES.REGISTER} className="text-sm bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors">
                 Kayıt Ol
               </Link>
             </>
           )}
         </div>
+
+        {/* Mobil — hamburger */}
+        <button
+          className="md:hidden text-gray-600 hover:text-gray-900"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
+
+      {/* Mobil menü */}
+      {menuOpen && (
+        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 flex flex-col gap-1">
+          {authenticated && links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors
+                ${pathname === link.href
+                  ? "bg-blue-50 text-blue-700 font-medium"
+                  : "text-gray-600 hover:bg-gray-100"
+                }`}
+            >
+              {link.icon}
+              <span>{link.label}</span>
+            </Link>
+          ))}
+
+          <div className="border-t border-gray-100 mt-2 pt-2">
+            {authenticated ? (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50 w-full"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Çıkış Yap</span>
+              </button>
+            ) : (
+              <>
+                <Link href={ROUTES.LOGIN} className="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100">
+                  Giriş Yap
+                </Link>
+                <Link href={ROUTES.REGISTER} className="flex items-center px-3 py-2.5 rounded-lg text-sm text-blue-700 font-medium hover:bg-blue-50">
+                  Kayıt Ol
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

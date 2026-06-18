@@ -40,7 +40,7 @@ export default function HomePage() {
 
       {/* İstatistikler */}
       <section className="bg-white py-12 px-4 border-b border-gray-100">
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
+        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-3xl font-bold text-blue-700">45+</p>
             <p className="text-sm text-gray-500 mt-1">Üniversite</p>

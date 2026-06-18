@@ -133,7 +133,7 @@ export default function DonorFindPage() {
               onChange={handleChange}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Select
                 label="Min Sınıf"
                 name="minGrade"
