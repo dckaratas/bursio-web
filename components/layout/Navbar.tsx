@@ -7,7 +7,7 @@ import { clearAuth, getRole, isAuthenticated } from "@/lib/auth";
 import { ROUTES } from "@/constants";
 import {
   LogOut, GraduationCap, LayoutDashboard, Search,
-  List, User, Flag, University, Users, Menu, X
+  List, User, Flag, University, Users, Menu, X, Settings
 } from "lucide-react";
 import type { Role } from "@/types";
 
@@ -21,10 +21,12 @@ const roleLinks: Record<string, NavLink[]> = {
   STUDENT: [
     { href: ROUTES.STUDENT.PROFILE, label: "Profilim", icon: <User className="w-4 h-4" /> },
     { href: ROUTES.STUDENT.MATCHES, label: "Tekliflerim", icon: <List className="w-4 h-4" /> },
+    { href: ROUTES.SETTINGS, label: "Ayarlar", icon: <Settings className="w-4 h-4" /> },
   ],
   DONOR: [
     { href: ROUTES.DONOR.FIND, label: "Eşleşme Bul", icon: <Search className="w-4 h-4" /> },
     { href: ROUTES.DONOR.MATCHES, label: "Eşleşmelerim", icon: <List className="w-4 h-4" /> },
+    { href: ROUTES.SETTINGS, label: "Ayarlar", icon: <Settings className="w-4 h-4" /> },
   ],
   ADMIN: [
     { href: ROUTES.ADMIN.DASHBOARD, label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },

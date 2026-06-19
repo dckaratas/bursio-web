@@ -17,6 +17,7 @@ export const ROUTES = {
     REPORTS: "/admin/reports",
     UNIVERSITIES: "/admin/universities",
   },
+  SETTINGS: "/settings",
 } as const;
 
 export const API_ENDPOINTS = {
