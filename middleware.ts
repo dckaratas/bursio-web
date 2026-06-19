@@ -11,6 +11,8 @@ const PUBLIC_ROUTES = [
   "/kvkk",
   "/hakkinda",
   "/iletisim",
+  "/forgot-password",
+  "/reset-password",
 ];
 
 const ROLE_ROUTES: Record<string, string[]> = {

@@ -109,6 +109,15 @@ export default function LoginPage() {
                             autoComplete="current-password"
                         />
 
+                        <div className="flex justify-end">
+                            <Link
+                                href="/forgot-password"
+                                className="text-sm text-gray-400 hover:text-blue-700 transition-colors"
+                            >
+                                Şifremi unuttum
+                            </Link>
+                        </div>
+
                         <Button type="submit" fullWidth loading={loading} size="lg">
                             Giriş Yap
                         </Button>
