@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, KeyRound } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -12,31 +12,69 @@ import { ROUTES } from "@/constants";
 import api from "@/lib/api";
 
 export default function SettingsPage() {
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // Şifre değiştirme state
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
 
-  const handleDeleteAccount = async (e: React.FormEvent) => {
+  // Hesap silme state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    setPasswordError("");
+    setPasswordSuccess("");
+    setPasswordLoading(true);
 
     try {
-      await api.delete("/api/user/account", { data: { password } });
-      clearAuth();
-      window.location.href = ROUTES.LOGIN;
+      const res = await api.put("/api/user/password", {
+        currentPassword,
+        newPassword,
+      });
+      setPasswordSuccess(res.data.message);
+      setCurrentPassword("");
+      setNewPassword("");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Bir hata oluştu.");
+      setPasswordError(err.response?.data?.message || "Bir hata oluştu.");
     } finally {
-      setLoading(false);
+      setPasswordLoading(false);
     }
   };
 
-  const handleClose = () => {
+  const handleClosePasswordModal = () => {
+    setShowPasswordModal(false);
+    setCurrentPassword("");
+    setNewPassword("");
+    setPasswordError("");
+    setPasswordSuccess("");
+  };
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleteError("");
+    setDeleteLoading(true);
+
+    try {
+      await api.delete("/api/user/account", { data: { password: deletePassword } });
+      clearAuth();
+      window.location.href = ROUTES.LOGIN;
+    } catch (err: any) {
+      setDeleteError(err.response?.data?.message || "Bir hata oluştu.");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
     setShowDeleteModal(false);
-    setPassword("");
-    setError("");
+    setDeletePassword("");
+    setDeleteError("");
   };
 
   return (
@@ -48,28 +86,109 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Card>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-1">Hesabı Sil</h3>
-            <p className="text-sm text-gray-500">
-              Hesabınız ve tüm verileriniz kalıcı olarak silinir. Bu işlem geri alınamaz.
-            </p>
+      <div className="flex flex-col gap-4">
+        {/* Şifre Değiştir */}
+        <Card>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">Şifre Değiştir</h3>
+              <p className="text-sm text-gray-500">
+                Hesap güvenliğin için şifreni düzenli olarak güncellemenizi öneririz.
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowPasswordModal(true)}
+            >
+              <KeyRound className="w-4 h-4 mr-1" />
+              Şifre Değiştir
+            </Button>
           </div>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => setShowDeleteModal(true)}
-          >
-            <Trash2 className="w-4 h-4 mr-1" />
-            Hesabı Sil
-          </Button>
-        </div>
-      </Card>
+        </Card>
 
+        {/* Hesabı Sil */}
+        <Card>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">Hesabı Sil</h3>
+              <p className="text-sm text-gray-500">
+                Hesabınız ve tüm verileriniz kalıcı olarak silinir. Bu işlem geri alınamaz.
+              </p>
+            </div>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => setShowDeleteModal(true)}
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Hesabı Sil
+            </Button>
+          </div>
+        </Card>
+      </div>
+
+      {/* Şifre Değiştirme Modalı */}
+      <Modal
+        open={showPasswordModal}
+        onClose={handleClosePasswordModal}
+        title="Şifre Değiştir"
+      >
+        <div className="flex flex-col gap-4">
+          {passwordError && <Alert type="error" message={passwordError} />}
+          {passwordSuccess && <Alert type="success" message={passwordSuccess} />}
+
+          {!passwordSuccess && (
+            <form onSubmit={handleChangePassword} className="flex flex-col gap-4">
+              <Input
+                label="Mevcut şifre"
+                type="password"
+                placeholder="••••••••"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+              <Input
+                label="Yeni şifre"
+                type="password"
+                placeholder="••••••••"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  fullWidth
+                  onClick={handleClosePasswordModal}
+                >
+                  İptal
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  loading={passwordLoading}
+                >
+                  Güncelle
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {passwordSuccess && (
+            <Button variant="primary" fullWidth onClick={handleClosePasswordModal}>
+              Tamam
+            </Button>
+          )}
+        </div>
+      </Modal>
+
+      {/* Hesap Silme Modalı */}
       <Modal
         open={showDeleteModal}
-        onClose={handleClose}
+        onClose={handleCloseDeleteModal}
         title="Hesabı Kalıcı Olarak Sil"
       >
         <div className="flex flex-col gap-4">
@@ -78,15 +197,15 @@ export default function SettingsPage() {
             message="Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinecektir."
           />
 
-          {error && <Alert type="error" message={error} />}
+          {deleteError && <Alert type="error" message={deleteError} />}
 
           <form onSubmit={handleDeleteAccount} className="flex flex-col gap-4">
             <Input
               label="Onaylamak için şifrenizi girin"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
               required
             />
             <div className="flex gap-3">
@@ -94,7 +213,7 @@ export default function SettingsPage() {
                 type="button"
                 variant="ghost"
                 fullWidth
-                onClick={handleClose}
+                onClick={handleCloseDeleteModal}
               >
                 İptal
               </Button>
@@ -102,7 +221,7 @@ export default function SettingsPage() {
                 type="submit"
                 variant="danger"
                 fullWidth
-                loading={loading}
+                loading={deleteLoading}
               >
                 Hesabı Sil
               </Button>
