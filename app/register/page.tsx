@@ -8,6 +8,8 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import { ROUTES, API_ENDPOINTS } from "@/constants";
 import api from "@/lib/api";
+import MaintenanceBanner from "@/components/ui/MaintenanceBanner";
+import { useSystemStatus } from "@/hooks/useStatus";
 
 type Role = "STUDENT" | "DONOR";
 
@@ -29,6 +31,7 @@ export default function RegisterPage() {
   const [changeLoading, setChangeLoading] = useState(false);
   const [changeSuccess, setChangeSuccess] = useState("");
   const [changeError, setChangeError] = useState("");
+  const { data: status } = useSystemStatus();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -80,6 +83,8 @@ export default function RegisterPage() {
     }
   };
   return (
+    <>
+      {status?.active && <MaintenanceBanner message={status.message} />}
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         {/* Logo */}
@@ -301,5 +306,6 @@ export default function RegisterPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

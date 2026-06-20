@@ -92,7 +92,14 @@ export default function AdminUniversitiesPage() {
       )}
 
       {addMutation.isError && (
-        <Alert type="error" message="Üniversite eklenirken hata oluştu." className="mb-4" />
+        <Alert
+          type="error"
+          message={
+            (addMutation.error as any)?.response?.data?.message ??
+            "Üniversite eklenirken hata oluştu."
+          }
+          className="mb-4"
+        />
       )}
 
       {addMutation.isSuccess && (

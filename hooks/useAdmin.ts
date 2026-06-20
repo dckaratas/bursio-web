@@ -105,3 +105,25 @@ export function useAdminStats() {
     staleTime: 60 * 1000,  // 1 dakika
   });
 }
+
+export function useAdminMaintenance() {
+  return useQuery({
+    queryKey: ["adminMaintenance"],
+    queryFn: async () => {
+      const res = await api.get(API_ENDPOINTS.ADMIN.MAINTENANCE);
+      return res.data as { active: boolean; message: string };
+    },
+    staleTime: 0,
+  });
+}
+
+export function useSetMaintenance() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { active: boolean; message: string }) =>
+      api.put(API_ENDPOINTS.ADMIN.MAINTENANCE, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminMaintenance"] });
+    },
+  });
+}

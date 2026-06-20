@@ -1,9 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { ROUTES } from "@/constants";
 import { GraduationCap, Heart, Shield, Zap } from "lucide-react";
+import MaintenanceBanner from "@/components/ui/MaintenanceBanner";
+import { useSystemStatus } from "@/hooks/useStatus";
 
 export default function HomePage() {
+  const { data: status } = useSystemStatus();
+
   return (
+    <>
+      {status?.active && <MaintenanceBanner message={status.message} />}
     <div className="flex flex-col">
       {/* Hero */}
       <section className="bg-gradient-to-br from-blue-700 to-blue-900 text-white py-24 px-4">
@@ -225,5 +233,6 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
