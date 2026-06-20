@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
@@ -17,8 +17,10 @@ export default function AdminUniversitiesPage() {
   const [page, setPage] = useState(0);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newUni, setNewUni] = useState({ name: "", city: "", emailDomains: "" });
+  const [query, setQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
 
-  const { data, isLoading, error } = useAdminUniversities(page);
+  const { data, isLoading, error } = useAdminUniversities(query, page);
   const addMutation = useAddUniversity();
   const toggleMutation = useToggleUniversity();
 
@@ -42,6 +44,12 @@ export default function AdminUniversitiesPage() {
     );
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuery(searchInput);
+    setPage(0);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
@@ -52,17 +60,31 @@ export default function AdminUniversitiesPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Üniversiteler</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Toplam {data?.totalElements ?? 0} üniversite
-          </p>
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Üniversiteler</h1>
+            <p className="text-gray-500 text-sm mt-1">
+              Toplam {data?.totalElements ?? 0} üniversite
+            </p>
+          </div>
+          <Button onClick={() => setShowAddForm(!showAddForm)}>
+            <Plus className="w-4 h-4 mr-1" />
+            Ekle
+          </Button>
         </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)}>
-          <Plus className="w-4 h-4 mr-1" />
-          Ekle
-        </Button>
+
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
+            placeholder="Üniversite veya şehir ara..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="flex-1"
+          />
+          <Button type="submit" size="sm">
+            <Search className="w-4 h-4" />
+          </Button>
+        </form>
       </div>
 
       {error && (

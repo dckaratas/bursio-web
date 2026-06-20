@@ -3,12 +3,12 @@ import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants";
 import { AccountStatus, PageResponse, ReportStatus } from "@/types";
 
-export function useAdminUsers(page = 0) {
+export function useAdminUsers(query = "", role = "", page = 0) {
   return useQuery({
-    queryKey: ["adminUsers", page],
+    queryKey: ["adminUsers", query, role, page],
     queryFn: async () => {
       const res = await api.get(API_ENDPOINTS.ADMIN.USERS, {
-        params: { page, size: 20 },
+        params: { query: query || undefined, role: role || undefined, page, size: 20 },
       });
       return res.data;
     },
@@ -27,12 +27,12 @@ export function useUpdateUserStatus() {
   });
 }
 
-export function useAdminReports(page = 0, status?: string) {
+export function useAdminReports(query = "", status = "", page = 0) {
   return useQuery({
-    queryKey: ["adminReports", page, status],
+    queryKey: ["adminReports", query, status, page],
     queryFn: async () => {
       const res = await api.get(API_ENDPOINTS.ADMIN.REPORTS, {
-        params: { page, size: 20, status: status || undefined },
+        params: { query: query || undefined, status: status || undefined, page, size: 20 },
       });
       return res.data;
     },
@@ -53,12 +53,12 @@ export function useUpdateReportStatus() {
   });
 }
 
-export function useAdminUniversities(page = 0) {
+export function useAdminUniversities(query = "", page = 0) {
   return useQuery({
-    queryKey: ["adminUniversities", page],
+    queryKey: ["adminUniversities", query, page],
     queryFn: async () => {
       const res = await api.get(API_ENDPOINTS.ADMIN.UNIVERSITIES, {
-        params: { page, size: 20 },
+        params: { query: query || undefined, page, size: 20 },
       });
       return res.data;
     },

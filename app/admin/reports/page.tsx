@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Flag, ChevronLeft, ChevronRight } from "lucide-react";
+import { Flag, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
 import { useAdminReports, useUpdateReportStatus } from "@/hooks/useAdmin";
-import { ReportStatus, Report  } from "@/types";
+import { ReportStatus, Report } from "@/types";
+import Input from "@/components/ui/Input";
 
 const statusVariant: Record<ReportStatus, "danger" | "warning" | "success"> = {
   OPEN: "danger",
@@ -30,10 +31,19 @@ const reasonLabel: Record<string, string> = {
 };
 
 export default function AdminReportsPage() {
+  const [query, setQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState<ReportStatus | "">("");
-  const { data, isLoading, error } = useAdminReports(page, statusFilter);
+  const { data, isLoading, error } = useAdminReports(query, statusFilter, page);
   const updateStatusMutation = useUpdateReportStatus();
+
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuery(searchInput);
+    setPage(0);
+  };
 
   if (isLoading) {
     return (
@@ -45,26 +55,43 @@ export default function AdminReportsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Şikayetler</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Toplam {data?.totalElements ?? 0} şikayet
-          </p>
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Şikayetler</h1>
+            <p className="text-gray-500 text-sm mt-1">
+              Toplam {data?.totalElements ?? 0} şikayet
+            </p>
+          </div>
         </div>
-        <Select
-          options={[
-            { value: "", label: "Tümü" },
-            { value: "OPEN", label: "Açık" },
-            { value: "REVIEWED", label: "İnceleniyor" },
-            { value: "RESOLVED", label: "Çözüldü" },
-          ]}
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value as ReportStatus | "");
-            setPage(0);
-          }}
-        />
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+            <Input
+              placeholder="Email ara..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="flex-1"
+            />
+            <Button type="submit" size="sm">
+              <Search className="w-4 h-4" />
+            </Button>
+          </form>
+          <div className="sm:w-48">
+            <Select
+              options={[
+                { value: "", label: "Tümü" },
+                { value: "OPEN", label: "Açık" },
+                { value: "REVIEWED", label: "İnceleniyor" },
+                { value: "RESOLVED", label: "Çözüldü" },
+              ]}
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value as ReportStatus | ""); setPage(0); }}
+              clearable
+              onClear={() => { setStatusFilter(""); setPage(0); }}
+            />
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -82,7 +109,7 @@ export default function AdminReportsPage() {
         </Card>
       ) : (
         <div className="flex flex-col gap-3">
-          {data?.content.map((report: Report ) => (
+          {data?.content.map((report: Report) => (
             <Card key={report.id} padding="sm">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div className="flex-1">
