@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
-import { ROUTES, API_ENDPOINTS } from "@/constants";
+import { ROUTES, API_ENDPOINTS, DEPARTMENT_CATEGORIES, GRADE_OPTIONS } from "@/constants";
 import { useCreateRandomMatch } from "@/hooks/useMatches";
 import api from "@/lib/api";
 import { University } from "@/types";
@@ -17,7 +17,7 @@ export default function DonorFindPage() {
   const [success, setSuccess] = useState(false);
   const [filter, setFilter] = useState({
     universityId: "",
-    department: "",
+    departmentCategory: "",
     minGrade: "",
     maxGrade: "",
     minGpa: "",
@@ -50,7 +50,7 @@ export default function DonorFindPage() {
     createMatchMutation.mutate(
       {
         universityId: filter.universityId ? Number(filter.universityId) : null,
-        department: filter.department || null,
+        departmentCategory: filter.departmentCategory || null,
         minGrade: filter.minGrade ? Number(filter.minGrade) : null,
         maxGrade: filter.maxGrade ? Number(filter.maxGrade) : null,
         minGpa: filter.minGpa ? Number(filter.minGpa) : null,
@@ -85,7 +85,7 @@ export default function DonorFindPage() {
                 createMatchMutation.reset();
                 setFilter({
                   universityId: "",
-                  department: "",
+                  departmentCategory: "",
                   minGrade: "",
                   maxGrade: "",
                   minGpa: "",
@@ -126,18 +126,26 @@ export default function DonorFindPage() {
               value={filter.universityId}
               onChange={handleChange}
               placeholder="Tüm üniversiteler"
+              clearable
+              onClear={() => setFilter({ ...filter, universityId: "" })}
               options={universities.map((u: University) => ({
                 value: u.id.toString(),
                 label: `${u.name} — ${u.city}`,
               }))}
             />
 
-            <Input
-              label="Bölüm"
-              name="department"
-              placeholder="Örn: Bilgisayar Mühendisliği"
-              value={filter.department}
+            <Select
+              label="Bölüm Kategorisi"
+              name="departmentCategory"
+              value={filter.departmentCategory}
               onChange={handleChange}
+              placeholder="Tüm kategoriler"
+              clearable
+              onClear={() => setFilter({ ...filter, departmentCategory: "" })}
+              options={DEPARTMENT_CATEGORIES.map(c => ({
+                value: c.value,
+                label: c.label,
+              }))}
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -147,12 +155,9 @@ export default function DonorFindPage() {
                 value={filter.minGrade}
                 onChange={handleChange}
                 placeholder="Fark etmez"
-                options={[
-                  { value: "1", label: "1. Sınıf" },
-                  { value: "2", label: "2. Sınıf" },
-                  { value: "3", label: "3. Sınıf" },
-                  { value: "4", label: "4. Sınıf" },
-                ]}
+                clearable
+                onClear={() => setFilter({ ...filter, minGrade: "" })}
+                options={GRADE_OPTIONS.map(g => ({ value: g.value, label: g.label }))}
               />
               <Select
                 label="Max Sınıf"
@@ -160,12 +165,9 @@ export default function DonorFindPage() {
                 value={filter.maxGrade}
                 onChange={handleChange}
                 placeholder="Fark etmez"
-                options={[
-                  { value: "1", label: "1. Sınıf" },
-                  { value: "2", label: "2. Sınıf" },
-                  { value: "3", label: "3. Sınıf" },
-                  { value: "4", label: "4. Sınıf" },
-                ]}
+                clearable
+                onClear={() => setFilter({ ...filter, maxGrade: "" })}
+                options={GRADE_OPTIONS.map(g => ({ value: g.value, label: g.label }))}
               />
             </div>
 

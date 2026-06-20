@@ -26,10 +26,11 @@ export interface StudentProfile {
   id: number;
   firstName: string;
   lastName: string;
-  universityId: number;  
+  universityId: number;
   universityName: string;
   city: string;
   department: string;
+  departmentCategory: DepartmentCategory;
   grade: number;
   gpa: number;
   bio: string;
@@ -51,7 +52,7 @@ export interface MatchResponse {
   contactValue: string | null;
   status: MatchStatus;
   donorMessage: string | null;
-  respondedAt: string | null; 
+  respondedAt: string | null;
   expiresAt: string;
   createdAt: string;
   donorId: number;
@@ -96,3 +97,21 @@ export interface Report {
   reportStatus: ReportStatus;
   createdAt: string;
 }
+
+export type DepartmentCategory =
+  | "MUHENDISLIK_TEKNOLOJI"
+  | "TIP_SAGLIK"
+  | "HUKUK"
+  | "IKTISADI_IDARI"
+  | "EGITIM"
+  | "FEN_BILIMLERI"
+  | "SOSYAL_BEŞERI"
+  | "GUZEL_SANATLAR_TASARIM"
+  | "MIMARLIK_SEHIR_PLANLAMA"
+  | "ILETISIM"
+  | "ZIRAAT_ORMAN"
+  | "DIS_HEKIMLIGI_ECZACILIK"
+  | "SPOR_BILIMLERI"
+  | "TURIZM_OTELCILIK"
+  | "ILAHIYAT"
+  | "DIGER";

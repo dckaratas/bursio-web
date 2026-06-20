@@ -13,6 +13,8 @@ const PUBLIC_ROUTES = [
   "/iletisim",
   "/forgot-password",
   "/reset-password",
+  "/verify-email/success",
+  "/verify-email/error",
 ];
 
 const ROLE_ROUTES: Record<string, string[]> = {

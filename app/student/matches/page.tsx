@@ -9,6 +9,10 @@ import Alert from "@/components/ui/Alert";
 import ReportModal from "@/components/ui/ReportModal";
 import { MatchResponse, MatchStatus } from "@/types";
 import { useStudentMatches, useRespondToMatch } from "@/hooks/useMatches";
+import { useStudentProfile } from "@/hooks/useStudentProfile";
+import Link from "next/link";
+import { ROUTES } from "@/constants";
+import { AlertCircle } from "lucide-react";
 
 const statusConfig: Record<
   MatchStatus,
@@ -21,6 +25,7 @@ const statusConfig: Record<
 };
 
 export default function StudentMatchesPage() {
+  const { data: profile, isLoading: profileLoading } = useStudentProfile();
   const { data, isLoading, error } = useStudentMatches();
   const respondMutation = useRespondToMatch();
   const [reportModal, setReportModal] = useState<{
@@ -29,10 +34,34 @@ export default function StudentMatchesPage() {
     userName: string;
   }>({ open: false, userId: 0, userName: "" });
 
-  if (isLoading) {
+  if (isLoading || profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700" />
+      </div>
+    );
+  }
+
+  // Profil tamamlanmamışsa uyarı göster
+  if (!profile || !profile.profileComplete) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center">
+          <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Profilin Tamamlanmamış
+          </h2>
+          <p className="text-gray-500 text-sm mb-6">
+            Burs tekliflerini görmek ve eşleşmelere katılmak için önce profilini
+            doldurman gerekiyor.
+          </p>
+          <Link
+            href={ROUTES.STUDENT.PROFILE}
+            className="bg-blue-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors"
+          >
+            Profili Doldur
+          </Link>
+        </div>
       </div>
     );
   }

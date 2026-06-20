@@ -27,3 +27,18 @@ export function useUpdateStudentProfile() {
     },
   });
 }
+
+export function useProfileComplete() {
+  return useQuery({
+    queryKey: ["studentProfile"],
+    queryFn: async () => {
+      try {
+        const res = await api.get<StudentProfile>(API_ENDPOINTS.STUDENT.PROFILE);
+        return res.data;
+      } catch {
+        return null;
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}

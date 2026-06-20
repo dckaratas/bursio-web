@@ -10,6 +10,7 @@ import { useStudentProfile, useUpdateStudentProfile } from "@/hooks/useStudentPr
 import api from "@/lib/api";
 import { University } from "@/types";
 import { getUniversityDomain } from "@/lib/auth";
+import { DEPARTMENT_CATEGORIES, GRADE_OPTIONS } from "@/constants";
 
 export default function StudentProfilePage() {
   const { data: profile, isLoading } = useStudentProfile();
@@ -20,6 +21,7 @@ export default function StudentProfilePage() {
 
   const [form, setForm] = useState({
     department: "",
+    departmentCategory: "",
     grade: "",
     gpa: "",
     bio: "",
@@ -49,6 +51,7 @@ export default function StudentProfilePage() {
       if (profile.universityName) setUniversityName(profile.universityName);
       setForm({
         department: profile.department || "",
+        departmentCategory: profile.departmentCategory || "",
         grade: profile.grade?.toString() || "",
         gpa: profile.gpa?.toString() || "",
         bio: profile.bio || "",
@@ -87,6 +90,7 @@ export default function StudentProfilePage() {
     updateMutation.mutate(
       {
         department: form.department,
+        departmentCategory: form.departmentCategory,
         grade: Number(form.grade),
         gpa: form.gpa ? Number(form.gpa) : null,
         bio: form.bio,
@@ -156,6 +160,29 @@ export default function StudentProfilePage() {
             </p>
           </div>
 
+          <Select
+            label="Bölüm Kategorisi"
+            name="departmentCategory"
+            value={form.departmentCategory}
+            onChange={handleChange}
+            placeholder="Kategori seç"
+            options={DEPARTMENT_CATEGORIES.map(c => ({
+              value: c.value,
+              label: c.label,
+            }))}
+            required
+          />
+
+          <Input
+            label="Bölüm Adı"
+            name="department"
+            placeholder="Bilgisayar Mühendisliği"
+            value={form.department}
+            onChange={handleChange}
+            hint="Bölümünüzün tam adını girin"
+            required
+          />
+
           <Input
             label="Bölüm"
             name="department"
@@ -172,14 +199,7 @@ export default function StudentProfilePage() {
               value={form.grade}
               onChange={handleChange}
               placeholder="Sınıf seç"
-              options={[
-                { value: "1", label: "1. Sınıf" },
-                { value: "2", label: "2. Sınıf" },
-                { value: "3", label: "3. Sınıf" },
-                { value: "4", label: "4. Sınıf" },
-                { value: "5", label: "5. Sınıf" },
-                { value: "6", label: "6. Sınıf (Yüksek Lisans)" },
-              ]}
+              options={GRADE_OPTIONS.map(g => ({ value: g.value, label: g.label }))}
               required
             />
             <Input

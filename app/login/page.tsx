@@ -37,7 +37,19 @@ export default function LoginPage() {
 
             saveAuth(res.data.token, res.data.role, res.data.email);
             saveAuth(res.data.token, res.data.role, res.data.email);
-            if (res.data.role === "STUDENT") window.location.href = ROUTES.STUDENT.PROFILE;
+            if (res.data.role === "STUDENT") {
+                try {
+                    const profileRes = await api.get(API_ENDPOINTS.STUDENT.PROFILE);
+                    if (profileRes.data.profileComplete) {
+                        window.location.href = ROUTES.STUDENT.MATCHES;
+                    } else {
+                        window.location.href = ROUTES.STUDENT.PROFILE;
+                    }
+                } catch {
+                    // Profil yok
+                    window.location.href = ROUTES.STUDENT.PROFILE;
+                }
+            }
             else if (res.data.role === "DONOR") window.location.href = ROUTES.DONOR.MATCHES;
             else if (res.data.role === "ADMIN") window.location.href = ROUTES.ADMIN.DASHBOARD;
         } catch (err: any) {
