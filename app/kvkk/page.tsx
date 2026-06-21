@@ -6,14 +6,14 @@ export default function KvkkPage() {
       <h1 className="text-3xl font-bold text-gray-900 mb-2">
         KVKK Aydınlatma Metni
       </h1>
-      <p className="text-sm text-gray-400 mb-8">Son güncelleme: Haziran 2025</p>
+      <p className="text-sm text-gray-400 mb-8">Son güncelleme: Haziran 2026</p>
 
       <div className="flex flex-col gap-6">
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Veri Sorumlusu</h2>
           <p className="text-gray-600 text-sm leading-relaxed">
             6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında veri sorumlusu
-            BursIO'dur. İletişim: kvkk@bursio.com
+            BursIO'dur. İletişim: kvkk@bursio.com.tr
           </p>
         </section>
 
@@ -60,8 +60,9 @@ export default function KvkkPage() {
           </h2>
           <p className="text-gray-600 text-sm leading-relaxed">
             İletişim bilgileriniz yalnızca eşleşme kabul edildiğinde karşı tarafa
-            iletilir. Üçüncü taraf firmalar veya yurt dışına veri aktarımı yapılmamaktadır.
-            E-posta gönderimi için Brevo (AB sunucuları) kullanılmaktadır.
+            iletilir. E-posta gönderimi amacıyla Brevo (Sendinblue SAS, Fransa/AB sunucuları)
+            ile veri paylaşımı yapılmaktadır. Bu aktarım KVKK md. 9 kapsamında açık rızanıza
+            dayanmaktadır. Bunun dışında üçüncü taraflara veya yurt dışına veri aktarımı yapılmamaktadır.
           </p>
         </section>
 
@@ -90,8 +91,8 @@ export default function KvkkPage() {
           </ul>
           <p className="text-gray-600 text-sm leading-relaxed mt-2">
             Başvuru:{" "}
-            <a href="mailto:kvkk@bursio.com" className="text-blue-700 hover:underline">
-              kvkk@bursio.com
+            <a href="mailto:kvkk@bursio.com.tr" className="text-blue-700 hover:underline">
+              kvkk@bursio.com.tr
             </a>
           </p>
         </section>

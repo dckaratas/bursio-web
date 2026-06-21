@@ -4,7 +4,7 @@ export default function KullanimKosullariPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">Kullanım Koşulları</h1>
-      <p className="text-sm text-gray-400 mb-8">Son güncelleme: Haziran 2025</p>
+      <p className="text-sm text-gray-400 mb-8">Son güncelleme: Haziran 2026</p>
 
       <div className="flex flex-col gap-6">
         <section>
@@ -57,8 +57,8 @@ export default function KullanimKosullariPage() {
         <section>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">6. Değişiklikler</h2>
           <p className="text-gray-600 text-sm leading-relaxed">
-            Bu koşullar önceden haber verilmeksizin güncellenebilir. Güncel versiyonu
-            takip etmek kullanıcının sorumluluğundadır.
+            Bu koşullar güncellenebilir. Platformu kullanmaya devam etmek güncel
+            koşulları kabul ettiğiniz anlamına gelir.
           </p>
         </section>
       </div>

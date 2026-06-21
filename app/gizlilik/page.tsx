@@ -4,7 +4,7 @@ export default function GizlilikPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold text-gray-900 mb-2">Gizlilik Politikası</h1>
-      <p className="text-sm text-gray-400 mb-8">Son güncelleme: Haziran 2025</p>
+      <p className="text-sm text-gray-400 mb-8">Son güncelleme: Haziran 2026</p>
 
       <div className="prose prose-gray max-w-none flex flex-col gap-6">
         <section>
@@ -44,7 +44,7 @@ export default function GizlilikPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">4. Veri Güvenliği</h2>
           <p className="text-gray-600 text-sm leading-relaxed">
             Kişisel verileriniz şifrelenmiş bağlantı (HTTPS) üzerinden iletilmekte,
-            şifreler BCrypt algoritması ile hashlenmektedir. İletişim bilgileriniz
+            şifreler algoritma ile hashlenmektedir. İletişim bilgileriniz
             yalnızca eşleşme kabul edildiğinde karşı tarafa iletilmektedir.
           </p>
         </section>
@@ -62,8 +62,8 @@ export default function GizlilikPage() {
           </ul>
           <p className="text-gray-600 text-sm leading-relaxed mt-2">
             Talepleriniz için:{" "}
-            <a href="mailto:kvkk@bursio.com" className="text-blue-700 hover:underline">
-              kvkk@bursio.com
+            <a href="mailto:kvkk@bursio.com.tr" className="text-blue-700 hover:underline">
+              kvkk@bursio.com.tr
             </a>
           </p>
         </section>
