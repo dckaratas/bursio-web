@@ -189,7 +189,7 @@ export default function AdminUniversitiesPage() {
       </div>
 
       {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex items-center justify-between gap-2 mt-6">
           <Button
             variant="secondary"
             size="sm"
@@ -199,7 +199,7 @@ export default function AdminUniversitiesPage() {
             <ChevronLeft className="w-4 h-4 mr-1" />
             Önceki
           </Button>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 shrink-0">
             {page + 1} / {data.totalPages}
           </p>
           <Button

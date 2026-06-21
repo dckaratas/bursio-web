@@ -99,7 +99,14 @@ export default function AdminReportsPage() {
       )}
 
       {updateStatusMutation.isError && (
-        <Alert type="error" message="Durum güncellenirken hata oluştu." className="mb-6" />
+        <Alert
+          type="error"
+          message={
+            (updateStatusMutation.error as any)?.response?.data?.message ??
+            "Durum güncellenirken hata oluştu."
+          }
+          className="mb-6"
+        />
       )}
 
       {data?.content.length === 0 ? (
@@ -163,7 +170,7 @@ export default function AdminReportsPage() {
       )}
 
       {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex items-center justify-between gap-2 mt-6">
           <Button
             variant="secondary"
             size="sm"
@@ -173,7 +180,7 @@ export default function AdminReportsPage() {
             <ChevronLeft className="w-4 h-4 mr-1" />
             Önceki
           </Button>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 shrink-0">
             {page + 1} / {data.totalPages}
           </p>
           <Button

@@ -59,6 +59,17 @@ export default function AdminUsersPage() {
         <Alert type="error" message="Kullanıcılar yüklenirken hata oluştu." className="mb-6" />
       )}
 
+      {updateStatusMutation.isError && (
+        <Alert
+          type="error"
+          message={
+            (updateStatusMutation.error as any)?.response?.data?.message ??
+            "Durum güncellenirken hata oluştu."
+          }
+          className="mb-6"
+        />
+      )}
+
       {/* Arama ve Filtre */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <form onSubmit={handleSearch} className="flex gap-2 flex-1">
@@ -135,11 +146,11 @@ export default function AdminUsersPage() {
       </div>
 
       {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex items-center justify-between gap-2 mt-6">
           <Button variant="secondary" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>
             <ChevronLeft className="w-4 h-4 mr-1" />Önceki
           </Button>
-          <p className="text-sm text-gray-500">{page + 1} / {data.totalPages}</p>
+          <p className="text-sm text-gray-500 shrink-0">{page + 1} / {data.totalPages}</p>
           <Button variant="secondary" size="sm" disabled={data.last} onClick={() => setPage(page + 1)}>
             Sonraki<ChevronRight className="w-4 h-4 ml-1" />
           </Button>

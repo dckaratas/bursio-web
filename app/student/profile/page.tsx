@@ -141,7 +141,10 @@ export default function StudentProfilePage() {
       {updateMutation.isError && (
         <Alert
           type="error"
-          message="Profil güncellenirken hata oluştu."
+          message={
+            (updateMutation.error as any)?.response?.data?.message ??
+            "Profil güncellenirken hata oluştu."
+          }
           className="mb-6"
         />
       )}
@@ -180,15 +183,6 @@ export default function StudentProfilePage() {
             value={form.department}
             onChange={handleChange}
             hint="Bölümünüzün tam adını girin"
-            required
-          />
-
-          <Input
-            label="Bölüm"
-            name="department"
-            placeholder="Bilgisayar Mühendisliği"
-            value={form.department}
-            onChange={handleChange}
             required
           />
 

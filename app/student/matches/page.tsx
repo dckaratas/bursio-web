@@ -82,7 +82,14 @@ export default function StudentMatchesPage() {
       )}
 
       {respondMutation.isError && (
-        <Alert type="error" message="İşlem sırasında hata oluştu." className="mb-6" />
+        <Alert
+          type="error"
+          message={
+            (respondMutation.error as any)?.response?.data?.message ??
+            "İşlem sırasında hata oluştu."
+          }
+          className="mb-6"
+        />
       )}
 
       {matches.length === 0 ? (
@@ -154,7 +161,7 @@ export default function StudentMatchesPage() {
                   )}
 
                   {match.status === "PENDING" && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         variant="danger"
                         size="sm"
