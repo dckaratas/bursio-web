@@ -20,7 +20,7 @@ export default function KullanimKosullariPage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">2. Kullanıcı Yükümlülükleri</h2>
           <ul className="list-disc list-inside text-sm text-gray-600 flex flex-col gap-1">
             <li>Gerçek ve doğru bilgi sağlamak</li>
-            <li>Öğrenci kaydı için geçerli üniversite e-postası kullanmak</li>
+            <li>Öğrenci kaydı için devlet üniversitesine ait geçerli .edu.tr e-postası kullanmak</li>
             <li>Diğer kullanıcılara saygılı davranmak</li>
             <li>Platformu kötüye kullanmamak, spam göndermemek</li>
             <li>Başkalarının kişisel bilgilerini izinsiz paylaşmamak</li>

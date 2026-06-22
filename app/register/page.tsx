@@ -197,7 +197,7 @@ export default function RegisterPage() {
               {role === "STUDENT" && (
                 <Alert
                   type="info"
-                  message="Öğrenci kaydı için üniversite email adresiniz gereklidir (.edu.tr)"
+                  message="Öğrenci kaydı yalnızca devlet üniversitelerine ait .edu.tr email adresleriyle yapılabilir."
                   className="mb-5"
                 />
               )}

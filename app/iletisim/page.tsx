@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail, Clock, Shield } from "lucide-react";
+import { Mail, Shield } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "İletişim",
@@ -16,7 +16,7 @@ export default function IletisimPage() {
                 </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="grid md:grid-cols-2 gap-6 mb-12">
                 <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
                     <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                         <Mail className="w-6 h-6 text-blue-700" />
@@ -43,13 +43,6 @@ export default function IletisimPage() {
                     </a>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
-                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <Clock className="w-6 h-6 text-yellow-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Yanıt Süresi</h3>
-                    <p className="text-gray-500 text-sm">1–3 iş günü</p>
-                </div>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-xl p-8">
@@ -62,7 +55,7 @@ export default function IletisimPage() {
                         },
                         {
                             q: "Üniversite emailim yoksa kayıt olabilir miyim?",
-                            a: "Öğrenci olarak kayıt için geçerli bir .edu.tr uzantılı üniversite emaili zorunludur. Burs veren olarak herhangi bir email adresiyle kayıt olabilirsiniz.",
+                            a: "Öğrenci olarak kayıt yalnızca devlet üniversitelerine ait .edu.tr uzantılı email adresleriyle yapılabilir. Burs veren olarak herhangi bir email adresiyle kayıt olabilirsiniz.",
                         },
                         {
                             q: "Verilerimin güvenliği nasıl sağlanıyor?",

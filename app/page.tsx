@@ -91,8 +91,8 @@ export default function HomePage() {
                 {[
                   {
                     step: "1",
-                    title: "Üniversite emailinle kayıt ol",
-                    desc: "Sadece .edu.tr uzantılı email ile kayıt olabilirsin.",
+                    title: "Devlet üniversitesi emailinle kayıt ol",
+                    desc: "Yalnızca devlet üniversitelerine ait .edu.tr uzantılı email ile kayıt olabilirsin.",
                   },
                   {
                     step: "2",

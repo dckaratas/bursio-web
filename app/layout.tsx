@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: "BursIO — Burs Bul, Hayallerine Ulaş",
     template: "%s | BursIO",
   },
-  description: "Üniversite öğrencilerini burs vermek isteyen bireylerle buluşturan ücretsiz Türkiye platformu. Güvenli, şeffaf ve hızlı.",
+  description: "Devlet üniversitesi öğrencilerini burs vermek isteyen bireylerle buluşturan ücretsiz Türkiye platformu. Güvenli, şeffaf ve hızlı.",
   keywords: ["burs", "burs platformu", "üniversite bursu", "öğrenci bursu", "burs bul", "burs ver", "Türkiye burs"],
   authors: [{ name: "BursIO" }],
   creator: "BursIO",
@@ -20,12 +20,12 @@ export const metadata: Metadata = {
     url: "https://bursio.com.tr",
     siteName: "BursIO",
     title: "BursIO — Burs Bul, Hayallerine Ulaş",
-    description: "Üniversite öğrencilerini burs vermek isteyen bireylerle buluşturan ücretsiz Türkiye platformu.",
+    description: "Devlet üniversitesi öğrencilerini burs vermek isteyen bireylerle buluşturan ücretsiz Türkiye platformu.",
   },
   twitter: {
     card: "summary_large_image",
     title: "BursIO — Burs Bul, Hayallerine Ulaş",
-    description: "Üniversite öğrencilerini burs vermek isteyen bireylerle buluşturan ücretsiz Türkiye platformu.",
+    description: "Devlet üniversitesi öğrencilerini burs vermek isteyen bireylerle buluşturan ücretsiz Türkiye platformu.",
   },
   robots: {
     index: true,
