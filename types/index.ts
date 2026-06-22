@@ -50,6 +50,7 @@ export interface MatchResponse {
   studentEmail: string;
   contactPreference: string | null;
   contactValue: string | null;
+  studentMotivation: string | null;
   status: MatchStatus;
   donorMessage: string | null;
   respondedAt: string | null;

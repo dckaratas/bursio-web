@@ -101,6 +101,13 @@ export default function DonorMatchesPage() {
                 />
               </div>
 
+              {match.studentMotivation && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                  <p className="text-xs text-blue-400 mb-1">Öğrencinin Motivasyonu</p>
+                  <p className="text-sm text-blue-800 italic">"{match.studentMotivation}"</p>
+                </div>
+              )}
+
               {match.donorMessage && (
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-400 mb-1">Mesajın</p>
