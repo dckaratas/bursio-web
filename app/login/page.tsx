@@ -23,6 +23,7 @@ export default function LoginPage() {
     const [resendSuccess, setResendSuccess] = useState("");
     const [resendError, setResendError] = useState("");
     const [showResend, setShowResend] = useState(false);
+    const [showReverification, setShowReverification] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,7 +36,6 @@ export default function LoginPage() {
                 password,
             });
 
-            saveAuth(res.data.token, res.data.role, res.data.email);
             saveAuth(res.data.token, res.data.role, res.data.email);
             if (res.data.role === "STUDENT") {
                 try {
@@ -53,9 +53,14 @@ export default function LoginPage() {
             else if (res.data.role === "DONOR") window.location.href = ROUTES.DONOR.MATCHES;
             else if (res.data.role === "ADMIN") window.location.href = ROUTES.ADMIN.DASHBOARD;
         } catch (err: any) {
-            setError(
-                err.response?.data?.message || "Giriş yapılırken bir hata oluştu."
-            );
+            if (err.response?.data?.code === "EMAIL_REVERIFICATION_REQUIRED") {
+                setShowReverification(true);
+                setError("");
+            } else {
+                setError(
+                    err.response?.data?.message || "Giriş yapılırken bir hata oluştu."
+                );
+            }
         } finally {
             setLoading(false);
         }
@@ -99,6 +104,17 @@ export default function LoginPage() {
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
                     {error && (
                         <Alert type="error" message={error} className="mb-6" />
+                    )}
+
+                    {showReverification && (
+                        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-sm font-medium text-yellow-800 mb-1">
+                                Yıllık email doğrulaması gerekiyor
+                            </p>
+                            <p className="text-sm text-yellow-700">
+                                Üniversite e-postanıza doğrulama linki gönderildi. Linke tıkladıktan sonra tekrar giriş yapabilirsiniz.
+                            </p>
+                        </div>
                     )}
 
                     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
