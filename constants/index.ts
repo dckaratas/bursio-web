@@ -38,6 +38,7 @@ export const API_ENDPOINTS = {
   },
   ADMIN: {
     USERS: "/api/admin/users",
+    USER_DETAIL: (id: number) => `/api/admin/users/${id}`,
     USER_STATUS: (id: number) => `/api/admin/users/${id}/status`,
     REPORTS: "/api/admin/reports",
     REPORT_STATUS: (id: number) => `/api/admin/reports/${id}/status`,

@@ -87,6 +87,28 @@ export interface ErrorResponse {
   timestamp: string;
 }
 
+export interface AdminMatchSummary {
+  id: number;
+  counterpartName: string;
+  counterpartEmail: string;
+  status: MatchStatus;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface AdminUserDetail {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: Role;
+  status: AccountStatus;
+  emailVerified: boolean;
+  createdAt: string;
+  studentProfile: StudentProfile | null;
+  matches: AdminMatchSummary[];
+}
+
 export interface Report {
   id: number;
   reporterId: number;

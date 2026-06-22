@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
 import {
   useAdminUniversities,
   useAddUniversity,
@@ -19,8 +20,9 @@ export default function AdminUniversitiesPage() {
   const [newUni, setNewUni] = useState({ name: "", city: "", emailDomains: "" });
   const [query, setQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [activeFilter, setActiveFilter] = useState<boolean | null>(null);
 
-  const { data, isLoading, error } = useAdminUniversities(query, page);
+  const { data, isLoading, error } = useAdminUniversities(query, page, activeFilter);
   const addMutation = useAddUniversity();
   const toggleMutation = useToggleUniversity();
 
@@ -74,17 +76,34 @@ export default function AdminUniversitiesPage() {
           </Button>
         </div>
 
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <Input
-            placeholder="Üniversite veya şehir ara..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="flex-1"
-          />
-          <Button type="submit" size="sm">
-            <Search className="w-4 h-4" />
-          </Button>
-        </form>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+            <Input
+              placeholder="Üniversite veya şehir ara..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="flex-1"
+            />
+            <Button type="submit" size="sm">
+              <Search className="w-4 h-4" />
+            </Button>
+          </form>
+          <div className="sm:w-40">
+            <Select
+              options={[
+                { value: "", label: "Tüm Durum" },
+                { value: "true", label: "Aktif" },
+                { value: "false", label: "Pasif" },
+              ]}
+              value={activeFilter === null ? "" : String(activeFilter)}
+              onChange={(e) => {
+                const v = e.target.value;
+                setActiveFilter(v === "" ? null : v === "true");
+                setPage(0);
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {error && (

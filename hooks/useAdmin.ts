@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { API_ENDPOINTS } from "@/constants";
-import { AccountStatus, PageResponse, ReportStatus } from "@/types";
+import { AccountStatus, AdminUserDetail, PageResponse, ReportStatus } from "@/types";
 
 export function useAdminUsers(query = "", role = "", page = 0) {
   return useQuery({
@@ -13,6 +13,18 @@ export function useAdminUsers(query = "", role = "", page = 0) {
       return res.data;
     },
     staleTime: 60 * 1000,
+  });
+}
+
+export function useAdminUserDetail(userId: number | null) {
+  return useQuery({
+    queryKey: ["adminUserDetail", userId],
+    queryFn: async () => {
+      const res = await api.get<AdminUserDetail>(API_ENDPOINTS.ADMIN.USER_DETAIL(userId!));
+      return res.data;
+    },
+    enabled: userId !== null,
+    staleTime: 30 * 1000,
   });
 }
 
@@ -53,12 +65,17 @@ export function useUpdateReportStatus() {
   });
 }
 
-export function useAdminUniversities(query = "", page = 0) {
+export function useAdminUniversities(query = "", page = 0, active: boolean | null = null) {
   return useQuery({
-    queryKey: ["adminUniversities", query, page],
+    queryKey: ["adminUniversities", query, page, active],
     queryFn: async () => {
       const res = await api.get(API_ENDPOINTS.ADMIN.UNIVERSITIES, {
-        params: { query: query || undefined, page, size: 20 },
+        params: {
+          query: query || undefined,
+          page,
+          size: 20,
+          active: active !== null ? active : undefined,
+        },
       });
       return res.data;
     },

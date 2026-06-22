@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import Alert from "@/components/ui/Alert";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
+import UserDrawer from "@/components/admin/UserDrawer";
 import { useAdminUsers, useUpdateUserStatus } from "@/hooks/useAdmin";
 import { AccountStatus } from "@/types";
 
@@ -28,6 +29,7 @@ export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
   const [role, setRole] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const { data, isLoading, error } = useAdminUsers(query, role, page);
   const updateStatusMutation = useUpdateUserStatus();
@@ -100,7 +102,12 @@ export default function AdminUsersPage() {
 
       <div className="flex flex-col gap-3">
         {data?.content.map((user: any) => (
-          <Card key={user.id} padding="sm">
+          <Card
+            key={user.id}
+            padding="sm"
+            className="cursor-pointer hover:border-blue-200 hover:shadow-sm transition-all"
+            onClick={() => setSelectedUserId(user.id)}
+          >
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center">
@@ -124,20 +131,22 @@ export default function AdminUsersPage() {
                   variant={statusVariant[user.status as AccountStatus]}
                 />
                 {user.role !== "ADMIN" && (
-                  <Select
-                    options={[
-                      { value: "ACTIVE", label: "Aktif" },
-                      { value: "SUSPENDED", label: "Askıya Al" },
-                    ]}
-                    value={user.status === "SUSPENDED" ? "SUSPENDED" : "ACTIVE"}
-                    onChange={(e) =>
-                      updateStatusMutation.mutate({
-                        userId: user.id,
-                        status: e.target.value as AccountStatus,
-                      })
-                    }
-                    disabled={updateStatusMutation.isPending}
-                  />
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Select
+                      options={[
+                        { value: "ACTIVE", label: "Aktif" },
+                        { value: "SUSPENDED", label: "Askıya Al" },
+                      ]}
+                      value={user.status === "SUSPENDED" ? "SUSPENDED" : "ACTIVE"}
+                      onChange={(e) =>
+                        updateStatusMutation.mutate({
+                          userId: user.id,
+                          status: e.target.value as AccountStatus,
+                        })
+                      }
+                      disabled={updateStatusMutation.isPending}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -156,6 +165,11 @@ export default function AdminUsersPage() {
           </Button>
         </div>
       )}
+
+      <UserDrawer
+        userId={selectedUserId}
+        onClose={() => setSelectedUserId(null)}
+      />
     </div>
   );
 }
