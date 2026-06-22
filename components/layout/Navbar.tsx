@@ -101,6 +101,9 @@ export default function Navbar() {
             </button>
           ) : (
             <>
+              <Link href={ROUTES.CONTACT} className="text-sm text-gray-500 hover:text-blue-700 transition-colors">
+                İletişim
+              </Link>
               <Link href={ROUTES.LOGIN} className="text-sm text-gray-600 hover:text-blue-700 transition-colors">
                 Giriş Yap
               </Link>
@@ -149,6 +152,9 @@ export default function Navbar() {
               </button>
             ) : (
               <>
+                <Link href={ROUTES.CONTACT} className="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-100">
+                  İletişim
+                </Link>
                 <Link href={ROUTES.LOGIN} className="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100">
                   Giriş Yap
                 </Link>

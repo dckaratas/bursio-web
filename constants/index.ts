@@ -18,6 +18,7 @@ export const ROUTES = {
     UNIVERSITIES: "/admin/universities",
   },
   SETTINGS: "/settings",
+  CONTACT: "/iletisim",
 } as const;
 
 export const API_ENDPOINTS = {
