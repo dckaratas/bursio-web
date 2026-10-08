@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BursIO — Web
 
-## Getting Started
+Üniversite öğrencilerini burs vermek isteyen bireylerle buluşturan **BursIO** platformunun web arayüzü.
+Platform `bursio.com.tr` adresinde production'da yayınlandı.
 
-First, run the development server:
+> Backend: [dckaratas/bursio](https://github.com/dckaratas/bursio) (Spring Boot REST API)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Nasıl çalışır?
+
+- **Öğrenciler** üniversite e-postalarıyla kayıt olur, profillerini (üniversite, bölüm, sınıf, not ortalaması, iletişim tercihi) doldurur ve gelen eşleşme taleplerini kabul eder ya da reddeder.
+- **Bağışçılar** filtreler belirleyip uygun bir öğrenciyle rastgele eşleşir ve talebin durumunu takip eder. İletişim bilgileri yalnızca öğrenci kabul ettiğinde görünür.
+- **Adminler** kullanıcıları, raporları, üniversiteleri ve bakım modunu panelden yönetir.
+
+## Teknolojiler
+
+| Alan | Kullanılan |
+|---|---|
+| Framework | Next.js 15 (App Router), React 19, TypeScript |
+| Stil | Tailwind CSS 4, lucide-react ikonları |
+| Veri yönetimi | TanStack Query (React Query), Axios |
+| Kimlik doğrulama | JWT (cookie'de saklanır), Next.js middleware ile rol bazlı route koruması |
+| Deployment | Docker (multi-stage, `standalone` output), Nginx reverse proxy |
+
+## Öne çıkan özellikler
+
+- **Rol bazlı yönlendirme:** `middleware.ts`, token ve rol cookie'lerine bakarak `/student`, `/donor` ve `/admin` alanlarını korur. Yanlış role sahip kullanıcı kendi paneline yönlendirilir.
+- **Merkezi API katmanı:** Axios interceptor'ları her isteğe token ekler. 401/403 cevabı gelirse oturumu kapatıp kullanıcıyı login sayfasına yönlendirir.
+- **Custom hook'lar:** tüm sunucu iletişimi `hooks/` altındaki React Query hook'larıyla yapılır (`useMatches`, `useAdmin`, `useStudentProfile`, `useUniversities`, `useStatus`). Cache yönetimi ve mutation sonrası invalidation bu hook'larda yapılır.
+- **Hesap akışları:** kayıt, e-posta doğrulama sonuç sayfaları, şifremi unuttum/sıfırlama, ayarlar (şifre değiştirme, hesap silme).
+- **Admin paneli:** filtrelenebilir kullanıcı listesi ve detay çekmecesi, rapor yönetimi, üniversite ve e-posta domain yönetimi (aktif/pasif filtresi), bakım modu.
+- **Bakım modu banner'ı:** sistem durumu dakikada bir sorgulanır, bakım modu açıksa tüm kullanıcılara banner gösterilir.
+- **Yeniden kullanılabilir UI bileşenleri:** Button, Input, Select, Modal, Card, Badge, Alert ve aranabilir üniversite seçici.
+- **SEO ve yasal sayfalar:** metadata ve Open Graph, `sitemap.ts`, `robots.ts`; KVKK, gizlilik politikası ve kullanım koşulları sayfaları.
+
+## Proje yapısı
+
+```
+app/
+  student/      → öğrenci profili ve eşleşmeleri
+  donor/        → öğrenci bulma ve eşleşme takibi
+  admin/        → kullanıcı, rapor ve üniversite yönetimi
+  login, register, verify-email, forgot-password, reset-password, settings
+  kvkk, gizlilik, kullanim-kosullari, iletisim
+components/
+  layout/       → Navbar, Footer
+  ui/           → ortak UI bileşenleri
+  admin/        → admin'e özel bileşenler
+hooks/          → React Query hook'ları
+lib/            → API istemcisi ve auth yardımcıları
+constants/      → API endpoint'leri ve sabitler
+types/          → backend DTO'larına karşılık gelen TypeScript tipleri
+middleware.ts   → route koruması
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Lokalde çalıştırma
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Backend'in lokalde `http://localhost:8080` adresinde çalışıyor olması gerekir.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+echo "NEXT_PUBLIC_API_URL=http://localhost:8080" > .env.local
+npm run dev
+```
 
-## Learn More
+Uygulama `http://localhost:3000` adresinde açılır.
 
-To learn more about Next.js, take a look at the following resources:
+## Production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Production'da uygulama `standalone` modda build edilen bir Docker image olarak çalıştı. Image root olmayan bir kullanıcıyla çalışır. Backend ve PostgreSQL ile birlikte Docker Compose üzerinden, Nginx reverse proxy arkasında yayınlandı.
